@@ -8,7 +8,7 @@ enum IdeaStatus: string
     case INPROGRESS = "inprogress";
     case COMPLETED = "completed";
 
-    public function lable(): string {
+    public function label(): string {
         return match($this) {
             self::PENDING => "Pending",
             self::INPROGRESS => "In progress",

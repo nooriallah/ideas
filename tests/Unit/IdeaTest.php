@@ -2,7 +2,6 @@
 
 use App\Models\Idea;
 use App\Models\User;
-use Ramsey\Collection\Collection;
 
 test('Its belongs to user', function () {
     $idea = Idea::factory()->create();

@@ -15,8 +15,10 @@ class Idea extends Model
     use HasFactory;
    
     protected $casts =[
-        "links" => ArrayObject::class,
-        "status" => IdeaStatus::class,
+        "links" => 'array',
+        "status" => IdeaStatus::class, 
+        "created_at" => "datetime",
+        "updated_at" => "datetime"
     ];
 
 

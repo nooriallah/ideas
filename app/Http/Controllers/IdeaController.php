@@ -2,17 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\IdeaStatus;
 use App\Models\Idea;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class IdeaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        // Get the status from query parameters
+        $status = $request->query("status");
+
+        // Check if user is a normal user then show only his ideas otherwise show all ideas
+        if (Auth::user()->name == "admin") {
+            // Fetch all ideas
+            $ideas = Idea::latest()->get();
+        } else {
+            // Fetch ideas for the authenticated user
+            $ideas = Auth::user()->ideas()->latest()->get();
+        }
+
+        // Fetch ideas based on the status using match expression and 
+        $ideas = match ($status) {
+            IdeaStatus::PENDING->value => Auth::user()->ideas()->where("status", IdeaStatus::PENDING->value)->latest()->get(),
+            IdeaStatus::INPROGRESS->value => Auth::user()->ideas()->where("status", IdeaStatus::INPROGRESS->value)->latest()->get(),
+            IdeaStatus::COMPLETED->value => Auth::user()->ideas()->where("status", IdeaStatus::COMPLETED->value)->latest()->get(),
+            default => $ideas,
+        };
+
+        // show every status how much ideas have as count beside of status name
+        // Here also check if user is a normal user then show only his ideas count otherwise show all ideas count
+        $statusCounts = [
+            IdeaStatus::PENDING->value => Auth::user()->ideas()->where("status", IdeaStatus::PENDING->value)->count(),
+            IdeaStatus::INPROGRESS->value => Auth::user()->ideas()->where("status", IdeaStatus::INPROGRESS->value)->count(),
+            IdeaStatus::COMPLETED->value => Auth::user()->ideas()->where("status", IdeaStatus::COMPLETED->value)->count(),
+            "all" => Auth::user()->name == "admin" ? Idea::count() : Auth::user()->ideas()->count(),
+        ];
+
+
+        return view("ideas.index", compact("ideas", "status", "statusCounts"));
     }
 
     /**
@@ -34,10 +66,7 @@ class IdeaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Idea $idea)
-    {
-        //
-    }
+    public function show(Idea $idea) {}
 
     /**
      * Show the form for editing the specified resource.
