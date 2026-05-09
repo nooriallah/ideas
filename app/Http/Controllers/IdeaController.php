@@ -16,11 +16,12 @@ class IdeaController extends Controller
     {
         // Get the status from query parameters
         $status = $request->query("status");
+        $ideas = [];
 
         // Check if user is a normal user then show only his ideas otherwise show all ideas
         if (Auth::user()->name == "admin") {
             // Fetch all ideas
-            $ideas = Idea::latest()->get();
+            $ideas = Idea::all();
         } else {
             // Fetch ideas for the authenticated user
             $ideas = Auth::user()->ideas()->latest()->get();
@@ -40,11 +41,10 @@ class IdeaController extends Controller
             IdeaStatus::PENDING->value => Auth::user()->ideas()->where("status", IdeaStatus::PENDING->value)->count(),
             IdeaStatus::INPROGRESS->value => Auth::user()->ideas()->where("status", IdeaStatus::INPROGRESS->value)->count(),
             IdeaStatus::COMPLETED->value => Auth::user()->ideas()->where("status", IdeaStatus::COMPLETED->value)->count(),
-            "all" => Auth::user()->name == "admin" ? Idea::count() : Auth::user()->ideas()->count(),
+            "all" => Auth::user()->name == "admin" ? Idea::all()->count() : Auth::user()->ideas()->count(),
         ];
 
-
-        return view("ideas.index", compact("ideas", "status", "statusCounts"));
+        return view("idea.index", compact("ideas", "status", "statusCounts"));
     }
 
     /**
@@ -66,7 +66,11 @@ class IdeaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Idea $idea) {}
+    public function show(Idea $idea)
+    {
+
+        return view("idea.show", compact("idea"));
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -89,6 +93,7 @@ class IdeaController extends Controller
      */
     public function destroy(Idea $idea)
     {
-        //
+        $idea->delete();
+        return redirect()->route("idea.index")->with("success", "Idea deleted successfully");
     }
 }

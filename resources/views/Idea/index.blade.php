@@ -1,6 +1,5 @@
 <x-layout>
 
-
     <h1 class="text-2xl mt-10">All Ideas here!</h1>
 
     {{-- Making filter buttons and showing status counts --}}
