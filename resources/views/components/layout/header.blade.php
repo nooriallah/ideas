@@ -1,4 +1,4 @@
-<header class="border border-border px-6">
+<header class="py-5 px-6">
     <nav class="flex items-center justify-between max-w-7xl h-16 mx-auto">
         <div class="logo">
             <h2 class="text-3xl">Ideas</h2>

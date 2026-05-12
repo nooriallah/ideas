@@ -85,7 +85,7 @@ class IdeaController extends Controller
      */
     public function update(Request $request, Idea $idea)
     {
-        //
+        dd("data present here");
     }
 
     /**
