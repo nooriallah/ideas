@@ -60,7 +60,7 @@ class IdeaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd("data present here", $request->all());
     }
 
     /**

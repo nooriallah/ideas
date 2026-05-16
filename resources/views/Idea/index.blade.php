@@ -43,22 +43,48 @@
     {{-- Add Idea Model --}}
     <x-model>
         <h2 class="text-2xl mb-4">Add New Idea</h2>
-        <form x-data="{status: 'pending'}" method="post" action="{{ route('idea.store') }}">
+        <form
+        x-data="{
+            status: 'pending',
+            newLink: '',
+            links: []
+        }" 
+        method="post" action="{{ route('idea.store') }}">
             @csrf
-            <div class="mb-4 space-y-3">
-                <label for="status" class="form-label block">Status</label>
-                @foreach (\App\IdeaStatus::cases() as $status)
-                <button type="button" class="btn btn-outlined" 
-                @click="status = '{{ $status->value }}'"
-                :class="status === '{{ $status->value }}' ? 'btn' : ''">
-                    {{ $status->label() }}
-                </button>
-                @endforeach
-                <p x-text="status"></p>
-            </div>
+        
+
+            <fieldset x-data class="mb-3">
+                <legend>Links</legend>
+                <div class="flex gap-3">
+                    <input type="url" x-model="newLink" placeholder="Enter a link..." class="input">
+                    <button type="button" @click="links.push(newLink); newLink = '';" class="btn">+</button>
+                </div>
+
+                <pre x-text="newLink"></pre>
+
+                <template x-for="(link, index) in links" :key="index">
+                    <div class="flex items-center gap-2 mt-2">
+                        {{-- <a :href="link" target="_blank" class="text-blue-500 underline" x-text="link"></a> --}}
+                        <input type="text" name="links[]" :value="link" readonly class="input">
+                        <button type="button" @click="links.splice(index, 1)" class="btn btn-outlined">X</button>
+                    </div>
+                </template>
+
+            </fieldset>
 
 
             <x-form.field name="title" label="Title" placeholder="Idea title..." />
+
+            <div class="mb-4 space-y-3">
+                <label for="status" class="form-label block">Status</label>
+                @foreach (\App\IdeaStatus::cases() as $status)
+                <button type="button" @click="status = '{{ $status->value }}'" :class="status === '{{ $status->value }}' ? 'btn' : 'btn btn-outlined'">
+                    {{ $status->label() }}
+                </button>
+                @endforeach
+                <input type="hidden" name="status" :value="status">
+            </div>
+
             <x-form.field name="description" label="Description" type="textarea" placeholder="Idea description..." />
 
             <button type="submit" class="btn">Submit</button>
