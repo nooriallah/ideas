@@ -1,5 +1,5 @@
 <div 
-    x-data="{ modelOpen: true}" 
+    x-data="{ modelOpen: false }" 
     x-show="modelOpen" 
     @open-model.window="if($event.detail === 'create-model') modelOpen = true" 
     @close-model.window="modelOpen = false"

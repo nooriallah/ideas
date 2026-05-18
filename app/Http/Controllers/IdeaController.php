@@ -6,6 +6,7 @@ use App\IdeaStatus;
 use App\Models\Idea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Enum;
 
 class IdeaController extends Controller
 {
@@ -60,7 +61,34 @@ class IdeaController extends Controller
      */
     public function store(Request $request)
     {
-        dd("data present here", $request->all());
+
+    // Sarround the validation with try catch block to catch the validation exception and return back with errors
+
+        $request->validate([
+            "title" => "required",
+            "description" => "required",
+            "status" => ["required", new Enum(IdeaStatus::class)],
+            "links" => "nullable|array",
+            "links.*" => "nullable|url",
+        ], [
+            "status.enum" => "Status must be one of the following: pending, inprogress, completed",
+            "links.array" => "Links must be an array",
+            "links.*.url" => "Each link must be a valid URL",
+        ]);
+
+
+        // die and dump the errors if validation fails
+        
+
+        Auth::user()->ideas()->create([
+            "title" => $request->title,
+            "description" => $request->description,
+            "status" => $request->status,
+            "links" => $request->links,
+        ]);
+       
+
+        return redirect()->route("idea.index")->with("success", "Idea created successfully");
     }
 
     /**

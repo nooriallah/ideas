@@ -41,37 +41,16 @@
 
 
     {{-- Add Idea Model --}}
+{{-- now on model there is a form check if form is submited and show the error if there is any error for form fields then don't close the form model --}}
+
     <x-model>
         <h2 class="text-2xl mb-4">Add New Idea</h2>
-        <form
-        x-data="{
+        <form x-data="{
             status: 'pending',
             newLink: '',
             links: []
-        }" 
-        method="post" action="{{ route('idea.store') }}">
+        }" method="post" action="{{ route('idea.store') }}">
             @csrf
-        
-
-            <fieldset x-data class="mb-3">
-                <legend>Links</legend>
-                <div class="flex gap-3">
-                    <input type="url" x-model="newLink" placeholder="Enter a link..." class="input">
-                    <button type="button" @click="links.push(newLink); newLink = '';" class="btn">+</button>
-                </div>
-
-                <pre x-text="newLink"></pre>
-
-                <template x-for="(link, index) in links" :key="index">
-                    <div class="flex items-center gap-2 mt-2">
-                        {{-- <a :href="link" target="_blank" class="text-blue-500 underline" x-text="link"></a> --}}
-                        <input type="text" name="links[]" :value="link" readonly class="input">
-                        <button type="button" @click="links.splice(index, 1)" class="btn btn-outlined">X</button>
-                    </div>
-                </template>
-
-            </fieldset>
-
 
             <x-form.field name="title" label="Title" placeholder="Idea title..." />
 
@@ -83,7 +62,40 @@
                 </button>
                 @endforeach
                 <input type="hidden" name="status" :value="status">
+                @error("status")
+                <span class="text-red-400">{{ $message }}</span>
+                @enderror
             </div>
+
+            <fieldset class="mb-3">
+                <legend class="mb-3">Links</legend>
+                <div class="flex gap-3">
+                    <input type="url" x-model="newLink" placeholder="www.example.com" class="input">
+                    <button type="button" @click="if (newLink) { links.push(newLink); newLink = ''; }" class="btn">+</button>
+                </div>
+                <template x-for="(link, index) in links" :key="index">
+                    <div class="flex items-center gap-2 mt-2">
+                        {{-- <a :href="link" target="_blank" class="text-blue-500 underline" x-text="link"></a> --}}
+                        {{-- On value check if it dosn't has https:// then add it before link --}}
+                        <input type="url" name="links[]" 
+                        :value="link" 
+                        class="input" readonly required>
+                        <button type="button" @click="links.splice(index, 1)" class="btn btn-outlined">x</button>
+                    </div>
+
+                </template>
+
+                {{-- show its error here if there is any error for links --}}
+                @error("links")
+                <span class="text-red-400">{{ $message }}</span>
+                @enderror
+
+                @error("links.*")
+                <span class="text-red-400">{{ $message }}</span>
+                @enderror
+
+            </fieldset>
+
 
             <x-form.field name="description" label="Description" type="textarea" placeholder="Idea description..." />
 
