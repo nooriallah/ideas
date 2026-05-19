@@ -48,7 +48,9 @@
         <form x-data="{
             status: 'pending',
             newLink: '',
-            links: []
+            links: [],
+            newStep: '',
+            steps: [],
         }" method="post" action="{{ route('idea.store') }}">
             @csrf
 
@@ -96,6 +98,32 @@
 
             </fieldset>
 
+
+             <fieldset class="mb-3">
+                <legend class="mb-3">Steps</legend>
+                <div class="flex gap-3">
+                    <input type="text" x-model="newStep" placeholder="Add a step..." class="input">
+                    <button type="button" @click="if (newStep) { steps.push(newStep); newStep = ''; }" class="btn">+</button>
+                </div>
+                <template x-for="(step, index) in steps" :key="index">
+                    <div class="flex items-center gap-2 mt-2">
+                        <input type="text" name="steps[]" 
+                        :value="step" 
+                        class="input" readonly required>
+                        <button type="button" @click="steps.splice(index, 1)" class="btn btn-outlined">x</button>
+                    </div>
+
+                </template>
+
+                @error("steps")
+                <span class="text-red-400">{{ $message }}</span>
+                @enderror
+
+                @error("steps.*")
+                <span class="text-red-400">{{ $message }}</span>
+                @enderror
+
+            </fieldset>
 
             <x-form.field name="description" label="Description" type="textarea" placeholder="Idea description..." />
 

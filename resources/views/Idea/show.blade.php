@@ -40,6 +40,21 @@
         </div>
         @endif
 
+        @if ($idea->steps->isNotEmpty())
+        <h2 class="text-xl mt-10">Steps</h2>
+        <div class="flex flex-col gap-2">
+            @foreach ($idea->steps as $step)
+            <form action="{{ route('step.update', $step) }}" method="POST" class="flex items-center gap-2">
+                @csrf
+                @method('PATCH')
+                {{-- <input type="checkbox" id="steps-{{ $step->id }}" class="" onchange="this.form.submit()" @checked($step->completed)> --}}
+                <button type="submit" class="btn {{ !$step->completed ? 'btn-outlined' : '' }}">&check;</button>
+                <label for="steps-{{ $step->id }}" class="{{ $step->completed ? 'line-through text-gray-400' : '' }}">{{ $step->description }}</label>
+            </form>
+            @endforeach
+        </div>
+        @endif
+
         </x-idea.card>
 
 

@@ -70,22 +70,25 @@ class IdeaController extends Controller
             "status" => ["required", new Enum(IdeaStatus::class)],
             "links" => "nullable|array",
             "links.*" => "nullable|url",
+            "steps" => "nullable|array",
+            "steps.*" => "nullable|string|max:255",
         ], [
-            "status.enum" => "Status must be one of the following: pending, inprogress, completed",
             "links.array" => "Links must be an array",
             "links.*.url" => "Each link must be a valid URL",
+            "steps.array" => "Steps must be an array",
         ]);
 
-
-        // die and dump the errors if validation fails
-        
-
-        Auth::user()->ideas()->create([
+        $idea = Auth::user()->ideas()->create([
             "title" => $request->title,
             "description" => $request->description,
             "status" => $request->status,
-            "links" => $request->links,
+            "links" => $request->links ?? [],
         ]);
+
+        $steps = collect($request->steps ?? [])
+            ->map(fn ($step) => ["description" => $step]);
+
+        $idea->steps()->createMany($steps);
        
 
         return redirect()->route("idea.index")->with("success", "Idea created successfully");
