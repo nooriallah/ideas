@@ -10,7 +10,6 @@ class StepController extends Controller
     {
         $step->completed = ! $step->completed;
         $step->save();
-
         return back();
     }
 }

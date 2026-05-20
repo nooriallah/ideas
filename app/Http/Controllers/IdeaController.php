@@ -61,9 +61,6 @@ class IdeaController extends Controller
      */
     public function store(Request $request)
     {
-
-    // Sarround the validation with try catch block to catch the validation exception and return back with errors
-
         $request->validate([
             "title" => "required",
             "description" => "required",
@@ -72,10 +69,13 @@ class IdeaController extends Controller
             "links.*" => "nullable|url",
             "steps" => "nullable|array",
             "steps.*" => "nullable|string|max:255",
+            "image" => "nullable|image|max:2048", // Validate image file
         ], [
             "links.array" => "Links must be an array",
             "links.*.url" => "Each link must be a valid URL",
             "steps.array" => "Steps must be an array",
+            "image.image" => "The image must be a valid image file",
+            "image.max" => "The image may not be greater than 2048 kilobytes",
         ]);
 
         $idea = Auth::user()->ideas()->create([
@@ -85,12 +85,19 @@ class IdeaController extends Controller
             "links" => $request->links ?? [],
         ]);
 
+        // Store the image with a unique name and save only the filename in the database.
+        if ($request->hasFile("image")) {
+            $image = $request->file("image");
+            $imageName = time() . "_" . $image->getClientOriginalName();
+            $image->storeAs("frontend/images/ideas", $imageName, 'public');
+            $idea->update(["image_path" => $imageName]);
+        }
+
         $steps = collect($request->steps ?? [])
             ->map(fn ($step) => ["description" => $step]);
 
         $idea->steps()->createMany($steps);
        
-
         return redirect()->route("idea.index")->with("success", "Idea created successfully");
     }
 

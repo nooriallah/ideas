@@ -27,6 +27,11 @@
 
         @forelse ($ideas as $idea)
         <x-idea.card href="{{ route('idea.show', $idea) }}" class="space-y-5">
+            @if ($idea->image_path)
+            <div class="flex rounded-lg overflow-hidden -mx-10 -mt-10">
+                <img src='{{ asset("storage/frontend/images/ideas/$idea->image_path") ?? "storage/placeholder.png" }}' alt="Idea image">
+            </div>
+            @endif
             <h2 class="text-2xl">{{ $idea->title }}</h2>
             <p class="font-medium">{{ $idea->description }}</p>
             <x-idea.idea-status :status="$idea->status->value">{{ $idea->status->label() }}</x-idea.idea-status>
@@ -41,7 +46,7 @@
 
 
     {{-- Add Idea Model --}}
-{{-- now on model there is a form check if form is submited and show the error if there is any error for form fields then don't close the form model --}}
+    {{-- now on model there is a form check if form is submited and show the error if there is any error for form fields then don't close the form model --}}
 
     <x-model>
         <h2 class="text-2xl mb-4">Add New Idea</h2>
@@ -51,8 +56,10 @@
             links: [],
             newStep: '',
             steps: [],
-        }" method="post" action="{{ route('idea.store') }}">
+        }" enctype="multipart/form-data" method="post" action="{{ route('idea.store') }}">
             @csrf
+
+            <x-form.field type="file" name="image" label="Image" placeholder="Upload an image..." />
 
             <x-form.field name="title" label="Title" placeholder="Idea title..." />
 
@@ -79,9 +86,7 @@
                     <div class="flex items-center gap-2 mt-2">
                         {{-- <a :href="link" target="_blank" class="text-blue-500 underline" x-text="link"></a> --}}
                         {{-- On value check if it dosn't has https:// then add it before link --}}
-                        <input type="url" name="links[]" 
-                        :value="link" 
-                        class="input" readonly required>
+                        <input type="url" name="links[]" :value="link" class="input" readonly required>
                         <button type="button" @click="links.splice(index, 1)" class="btn btn-outlined">x</button>
                     </div>
 
@@ -99,7 +104,7 @@
             </fieldset>
 
 
-             <fieldset class="mb-3">
+            <fieldset class="mb-3">
                 <legend class="mb-3">Steps</legend>
                 <div class="flex gap-3">
                     <input type="text" x-model="newStep" placeholder="Add a step..." class="input">
@@ -107,9 +112,7 @@
                 </div>
                 <template x-for="(step, index) in steps" :key="index">
                     <div class="flex items-center gap-2 mt-2">
-                        <input type="text" name="steps[]" 
-                        :value="step" 
-                        class="input" readonly required>
+                        <input type="text" name="steps[]" :value="step" class="input" readonly required>
                         <button type="button" @click="steps.splice(index, 1)" class="btn btn-outlined">x</button>
                     </div>
 
