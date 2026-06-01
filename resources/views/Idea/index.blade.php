@@ -29,7 +29,7 @@
         <x-idea.card href="{{ route('idea.show', $idea) }}" class="space-y-5">
             @if ($idea->image_path)
             <div class="flex rounded-lg overflow-hidden -mx-10 -mt-10">
-                <img src='{{ asset("storage/frontend/images/ideas/$idea->image_path") ?? "storage/placeholder.png" }}' alt="Idea image">
+                <img src='{{ asset("storage/$idea->image_path") ?? "storage/placeholder.png" }}' alt="Idea image">
             </div>
             @endif
             <h2 class="text-2xl">{{ $idea->title }}</h2>

@@ -24,7 +24,7 @@
         <x-idea.card is="div" class="w-full">
             @if ($idea->image_path)
             <div class="flex">
-                <img src="{{ asset('storage/frontend/images/ideas/' . $idea->image_path) }}" alt="Idea image">
+                <img src="{{ asset('storage/' . $idea->image_path) }}" alt="Idea image">
             </div>
             @endif
             <h1 class="text-2xl">{{ $idea->title }}</h1>

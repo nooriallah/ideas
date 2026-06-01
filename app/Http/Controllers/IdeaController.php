@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreateIdea;
 use App\IdeaStatus;
 use App\Models\Idea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rules\Enum;
 
 class IdeaController extends Controller
@@ -71,27 +73,28 @@ class IdeaController extends Controller
             "steps.*" => "nullable|string|max:255",
             "image" => "nullable|image|max:2048", // Validate image file
         ], [
-            "links.array" => "Links must be an array",
             "links.*.url" => "Each link must be a valid URL",
             "steps.array" => "Steps must be an array",
-            "image.image" => "The image must be a valid image file",
-            "image.max" => "The image may not be greater than 2048 kilobytes",
         ]);
+
+        $idea = Auth::user()->ideas();
+
+        // Store the image with a unique name and save only the filename in the database.
+        $image_path = null;
+        if ($request->hasFile("image")) {
+            $image = $request->file("image");
+            $imageName = time() . "_" . $image->getClientOriginalName();
+            $image_path = $image->storeAs("frontend/images/ideas", $imageName, 'public');
+        }
+
 
         $idea = Auth::user()->ideas()->create([
             "title" => $request->title,
             "description" => $request->description,
             "status" => $request->status,
             "links" => $request->links ?? [],
+            "image_path" => $image_path,
         ]);
-
-        // Store the image with a unique name and save only the filename in the database.
-        if ($request->hasFile("image")) {
-            $image = $request->file("image");
-            $imageName = time() . "_" . $image->getClientOriginalName();
-            $image->storeAs("frontend/images/ideas", $imageName, 'public');
-            $idea->update(["image_path" => $imageName]);
-        }
 
         $steps = collect($request->steps ?? [])
             ->map(fn ($step) => ["description" => $step]);
@@ -106,7 +109,8 @@ class IdeaController extends Controller
      */
     public function show(Idea $idea)
     {
-
+        Gate::authorize("modify", $idea);
+        
         return view("idea.show", compact("idea"));
     }
 
@@ -131,7 +135,7 @@ class IdeaController extends Controller
      */
     public function destroy(Idea $idea)
     {
-        $idea->delete();
+        $idea->delete($idea->id);
         return redirect()->route("idea.index")->with("success", "Idea deleted successfully");
     }
 }
