@@ -1,4 +1,5 @@
-@props(["label" => null, "name", "type" => "text", "placeholder" => ""])
+@props(["label" => null, "name", "type" => "text", "placeholder" => "", 
+"value" => ""])
 
 <div class="mb-5 space-y-2">
     @if($label)
@@ -6,13 +7,13 @@
     @endif
 
     @if($type === "textarea")
-    <textarea id="{{ $name }}" name="{{ $name }}" class="input" class="textarea" placeholder="{{ $placeholder }}" style="min-height: 150px;">{{ old($name) }}</textarea>
+    <textarea id="{{ $name }}" name="{{ $name }}" class="input" class="textarea" placeholder="{{ $placeholder }}" style="min-height: 150px;">{{ old($name, $value) }}</textarea>
     @elseif($type === "select")
     <select id="{{ $name }}" name="{{ $name }}" class="input">
         {{ $slot }}
     </select>
     @else
-    <input type="{{ $type }}" id="{{ $name }}" name="{{ $name }}" value="{{ old($name) }}" class="input" placeholder="{{ $placeholder }}">
+    <input type="{{ $type }}" id="{{ $name }}" name="{{ $name }}" value="{{ old($name, $value) }}" class="input" placeholder="{{ $placeholder }}">
     @endif
 
     @error($name)

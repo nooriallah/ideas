@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\CreateIdea;
 use App\IdeaStatus;
 use App\Models\Idea;
 use Illuminate\Http\Request;
@@ -70,21 +69,20 @@ class IdeaController extends Controller
             "links" => "nullable|array",
             "links.*" => "nullable|url",
             "steps" => "nullable|array",
-            "steps.*" => "nullable|string|max:255",
+            "steps.*.description" => "nullable|string|max:255",
             "image" => "nullable|image|max:2048", // Validate image file
         ], [
             "links.*.url" => "Each link must be a valid URL",
             "steps.array" => "Steps must be an array",
         ]);
 
-        $idea = Auth::user()->ideas();
-
         // Store the image with a unique name and save only the filename in the database.
-        $image_path = null;
+        $imagePath = null;
         if ($request->hasFile("image")) {
             $image = $request->file("image");
             $imageName = time() . "_" . $image->getClientOriginalName();
-            $image_path = $image->storeAs("frontend/images/ideas", $imageName, 'public');
+            $image->storeAs("frontend/images/ideas", $imageName, 'public');
+            $imagePath = $imageName;
         }
 
 
@@ -93,11 +91,12 @@ class IdeaController extends Controller
             "description" => $request->description,
             "status" => $request->status,
             "links" => $request->links ?? [],
-            "image_path" => $image_path,
+            "image_path" => $imagePath,
         ]);
 
         $steps = collect($request->steps ?? [])
-            ->map(fn ($step) => ["description" => $step]);
+            ->filter(fn ($step) => filled($step["description"] ?? null))
+            ->map(fn ($step) => ["description" => $step["description"]]);
 
         $idea->steps()->createMany($steps);
        
@@ -127,7 +126,66 @@ class IdeaController extends Controller
      */
     public function update(Request $request, Idea $idea)
     {
-        dd("data present here");
+        Gate::authorize("modify", $idea);
+
+        $request->validate([
+            "title" => "required",
+            "description" => "required",
+            "status" => ["required", new Enum(IdeaStatus::class)],
+            "links" => "nullable|array",
+            "links.*" => "nullable|url",
+            "steps" => "nullable|array",
+            "steps.*.id" => "nullable|integer",
+            "steps.*.description" => "nullable|string|max:255",
+            "image" => "nullable|image|max:2048",
+        ], [
+            "links.*.url" => "Each link must be a valid URL",
+            "steps.array" => "Steps must be an array",
+        ]);
+
+        $imagePath = $idea->image_path;
+        if ($request->hasFile("image")) {
+            $image = $request->file("image");
+            $imageName = time() . "_" . $image->getClientOriginalName();
+            $image->storeAs("frontend/images/ideas", $imageName, 'public');
+            $imagePath = $imageName;
+        }
+
+        $idea->update([
+            "title" => $request->title,
+            "description" => $request->description,
+            "status" => $request->status,
+            "links" => $request->links ?? [],
+            "image_path" => $imagePath,
+        ]);
+
+        $steps = collect($request->steps ?? [])
+            ->filter(fn ($step) => filled($step["description"] ?? null));
+
+        $stepIds = $steps
+            ->pluck("id")
+            ->filter()
+            ->all();
+
+        $idea->steps()
+            ->whereNotIn("id", $stepIds)
+            ->delete();
+
+        $steps->each(function ($step) use ($idea) {
+            if (! empty($step["id"])) {
+                $idea->steps()
+                    ->where("id", $step["id"])
+                    ->update(["description" => $step["description"]]);
+
+                return;
+            }
+
+            $idea->steps()->create([
+                "description" => $step["description"],
+            ]);
+        });
+
+        return redirect()->route("idea.show", $idea)->with("success", "Idea updated successfully");
     }
 
     /**
@@ -135,7 +193,7 @@ class IdeaController extends Controller
      */
     public function destroy(Idea $idea)
     {
-        $idea->delete($idea->id);
+        $idea->delete();
         return redirect()->route("idea.index")->with("success", "Idea deleted successfully");
     }
 }

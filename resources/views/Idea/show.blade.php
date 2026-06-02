@@ -9,7 +9,7 @@
         </a>
 
         <div class="flex gap-x-2">
-            <button class="flex btn btn-edit">
+            <button x-data class="flex btn btn-edit" @click="$dispatch('open-model', 'edit-model');">
                 <x-icons.external />Edit</button>
             <form action="{{ route('idea.destroy', $idea) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this idea?');">
                 @csrf
@@ -24,7 +24,7 @@
         <x-idea.card is="div" class="w-full">
             @if ($idea->image_path)
             <div class="flex">
-                <img src="{{ asset('storage/' . $idea->image_path) }}" alt="Idea image">
+                <img src="{{ asset('storage/frontend/images/ideas/' . $idea->image_path) }}" alt="Idea image">
             </div>
             @endif
             <h1 class="text-2xl">{{ $idea->title }}</h1>
@@ -65,5 +65,8 @@
 
 
     </div>
+
+
+    <x-model :idea="$idea" />
 
 </x-layout>
