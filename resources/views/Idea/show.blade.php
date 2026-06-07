@@ -21,7 +21,7 @@
 
 
     <div class="flex flex-col gap-6">
-        <x-idea.card is="div" class="w-full">
+        <x-Idea.card is="div" class="w-full">
             @if ($idea->image_path)
             <div class="flex">
                 <img src="{{ asset('storage/frontend/images/ideas/' . $idea->image_path) }}" alt="Idea image">
@@ -31,7 +31,7 @@
             <p class="font-medium mb-10">{{ $idea->description }}</p>
 
             <div class="flex align-center gap-4">
-                <x-idea.idea-status :status="$idea->status->value">{{ $idea->status->label() }}</x-idea.idea-status>
+                <x-Idea.idea-status :status="$idea->status->value">{{ $idea->status->label() }}</x-Idea.idea-status>
                 <p class="text-sm">{{ $idea->created_at->diffForHumans() }}</p>
             </div>
 
@@ -60,7 +60,7 @@
             </div>
             @endif
 
-        </x-idea.card>
+        </x-Idea.card>
 
 
 

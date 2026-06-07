@@ -47,7 +47,7 @@ class IdeaController extends Controller
             "all" => Auth::user()->name == "admin" ? Idea::all()->count() : Auth::user()->ideas()->count(),
         ];
 
-        return view("idea.index", compact("ideas", "status", "statusCounts"));
+        return view("Idea.index", compact("ideas", "status", "statusCounts"));
     }
 
     /**
@@ -96,11 +96,10 @@ class IdeaController extends Controller
         ]);
 
         $steps = collect($request->steps ?? [])
-            ->filter(fn ($step) => filled($step["description"] ?? null))
-            ->map(fn ($step) => ["description" => $step["description"]]);
+            ->map(fn($step) => ["description" => $step]);
 
         $idea->steps()->createMany($steps);
-       
+
         return redirect()->route("idea.index")->with("success", "Idea created successfully");
     }
 
@@ -110,8 +109,8 @@ class IdeaController extends Controller
     public function show(Idea $idea)
     {
         Gate::authorize("modify", $idea);
-        
-        return view("idea.show", compact("idea"));
+
+        return view("Idea.show", compact("idea"));
     }
 
     /**

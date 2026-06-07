@@ -1,6 +1,5 @@
 @props(['idea' => null])
-<div x-data="{ modelOpen: false }" x-show="modelOpen" 
-@open-model.window="if($event.detail === '{{ $idea ? 'edit-model' : 'create-model' }}') modelOpen = true" @close-model.window="modelOpen = false" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+<div x-data="{ modelOpen: false }" x-show="modelOpen" @open-model.window="if($event.detail === '{{ $idea ? 'edit-model' : 'create-model' }}') modelOpen = true" @close-model.window="modelOpen = false" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
 
     <x-Idea.card class="w-1/2">
 
@@ -11,16 +10,13 @@
             links: @js($idea?->links ?? []),
             newStep: '',
             steps: @js($idea ? $idea->steps->map(fn ($step) => ['id' => $step->id, 'description' => $step->description])->values() : []),
-        }" 
-        enctype="multipart/form-data" 
-        method="post" 
-        action="{{ $idea ? route('idea.update', $idea) : route('idea.store') }}">
+        }" enctype="multipart/form-data" method="post" action="{{ $idea ? route('idea.update', $idea) : route('idea.store') }}">
             @csrf
             @if ($idea)
             @method('PUT')
             @endif
 
-           
+
             <x-form.field type="file" name="image" label="Image" placeholder="Upload an image..." />
 
             <x-form.field name="title" label="Title" placeholder="Idea title..." value="{{ $idea->title ?? '' }}" />

@@ -25,7 +25,7 @@
     {{-- Showing all ideas here --}}
     <div class="grid grid-cols-2 gap-6 mt-5">
         @forelse ($ideas as $idea)
-        <x-idea.card href="{{ route('idea.show', $idea) }}" class="space-y-5">
+        <x-Idea.card href="{{ route('idea.show', $idea) }}" class="space-y-5">
             @if ($idea->image_path)
             <div class="flex rounded-lg overflow-hidden -mx-10 -mt-10">
                 <img src="{{ asset('storage/frontend/images/ideas/' . $idea->image_path) }}" alt="Idea image">
@@ -33,9 +33,9 @@
             @endif
             <h2 class="text-2xl">{{ $idea->title }}</h2>
             <p class="font-medium">{{ $idea->description }}</p>
-            <x-idea.idea-status :status="$idea->status->value">{{ $idea->status->label() }}</x-idea.idea-status>
+            <x-Idea.idea-status :status="$idea->status->value">{{ $idea->status->label() }}</x-Idea.idea-status>
             <p class="text-sm mt-5">{{ $idea->created_at->diffForHumans() }}</p>
-        </x-idea.card>
+        </x-Idea.card>
         @empty
         <h2>No ideas found.</h2>
         @endforelse
