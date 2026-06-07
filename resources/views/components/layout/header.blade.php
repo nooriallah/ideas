@@ -12,6 +12,7 @@
 
         <div class="space-x-10">
             @auth
+            <a href="{{ route('auth.edit') }}" class="login">Profile</a>
             <a href="/logout" class="login">Logout</a>
             @endauth
             @guest

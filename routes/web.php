@@ -14,6 +14,9 @@ Route::post("/ideas", [IdeaController::class, "store"])->name("idea.store")->mid
 Route::put("/ideas/{idea}", [IdeaController::class, "update"])->name("idea.update")->middleware("auth");
 Route::patch("/steps/{step}", [StepController::class, "update"])->name("step.update")->middleware("auth");
 
+Route::get("/profile/edit", [SessionsController::class, "edit"])->name("auth.edit")->middleware("auth");
+Route::patch("/profile", [SessionsController::class, "update"])->name("auth.update")->middleware("auth");
+
 
 Route::get("/register", [RegisterdUserContorller::class, "create"])->name("register");
 Route::post("/register", [RegisterdUserContorller::class, "store"]);

@@ -7,6 +7,7 @@ use App\Models\Idea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Enum;
 
 class IdeaController extends Controller
@@ -145,6 +146,7 @@ class IdeaController extends Controller
 
         $imagePath = $idea->image_path;
         if ($request->hasFile("image")) {
+            Storage::disk('public')->delete("frontend/images/ideas/" . $idea->image_path);
             $image = $request->file("image");
             $imageName = time() . "_" . $image->getClientOriginalName();
             $image->storeAs("frontend/images/ideas", $imageName, 'public');

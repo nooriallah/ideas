@@ -30,6 +30,35 @@ class SessionsController extends Controller
         return redirect()->intended("/");
     }
 
+
+
+
+    public function edit()
+    {
+        return view("auth.edit");
+    }
+
+    public function update(Request $request)
+    {
+        $request->validate([
+            "name" => "required|string|max:255",
+            "email" => "required|email|unique:users,email," . Auth::id(),
+            "password" => "nullable|string|min:3"
+        ]);
+
+        $updatedAttr = [
+            "name" => $request->name,
+            "email" => $request->email,
+            "password" => $request->password ? bcrypt($request->password) : Auth::user()->password
+        ];
+
+        Auth::user()->update($updatedAttr);
+
+        return redirect()->route("auth.edit")->with("success", "Profile updated successfully");
+    }
+
+
+
     public function destroy()
     {
         Auth::logout();
